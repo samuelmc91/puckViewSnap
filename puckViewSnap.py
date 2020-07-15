@@ -45,7 +45,7 @@ class Watcher:
             puck_present = False
         time.sleep(90)
         if puck_present:
-            for i in range(1, 11):
+            for i in range(1, 6):
                 print('Taking image: ' + str(i) + ' of 10')
                 fill_level = epics.PV('XF:17IDB-ES:AMX{CS8}Ln2Level-I').get()
                 if fill_level >= 85:
