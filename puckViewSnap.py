@@ -26,7 +26,6 @@ class Watcher:
             self.post_change()
 
     def pre_change(self):
-        # A one and a half minute buffer to allow the robot to rotate
         plates = (plate_check(1, 180),
                   plate_check(2, 135),
                   plate_check(3, 90),
@@ -36,17 +35,21 @@ class Watcher:
                   plate_check(7, 270),
                   plate_check(8, 225))
         holder = 0
-        for plate in plates:
-            if (epics.PV('XF:17IDB-ES:AMX{Dew:1-Ax:R}Mtr.VAL').get() + 135) == plate.degree or (epics.PV('XF:17IDB-ES:AMX{Dew:1-Ax:R}Mtr.VAL').get() - 225) == plate.degree:
-                holder = plate.plate
-        if epics.PV('XF:17IDB-ES:AMX{Wago:1}Puck' + str(holder) + 'C-Sts').get() == 1:
-            puck_present = True
-        else:
-            puck_present = False
+        try:
+            for plate in plates:
+                if (epics.PV('XF:17IDB-ES:AMX{Dew:1-Ax:R}Mtr.VAL').get() + 135) == plate.degree or (epics.PV('XF:17IDB-ES:AMX{Dew:1-Ax:R}Mtr.VAL').get() - 225) == plate.degree:
+                    holder = plate.plate
+            if epics.PV('XF:17IDB-ES:AMX{Wago:1}Puck' + str(holder) + 'C-Sts').get() == 1:
+                puck_present = True
+            else:
+                puck_present = False
+        except Exception:
+            pass
+        # A one and a half minute buffer to allow the dewar to rotate
         time.sleep(90)
         if puck_present:
             for i in range(1, 6):
-                print('Taking image: ' + str(i) + ' of 10')
+                print('Taking image: ' + str(i) + ' of 5')
                 fill_level = epics.PV('XF:17IDB-ES:AMX{CS8}Ln2Level-I').get()
                 if fill_level >= 85:
                     # Change the settings to take the picture and capture the image
